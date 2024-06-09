@@ -1,0 +1,115 @@
+plugins:
+  watch-events:
+    shortCut: Shift-E
+    confirm: false
+    description: Get Events
+    scopes:
+      - all
+    command: sh
+    background: false
+    args:
+      - -c
+      - "watch -n 5 kubectl get events --context $CONTEXT --namespace $NAMESPACE --field-selector involvedObject.name=$NAME"
+
+  remove_finalizers:
+    # remove finalizers from resource
+    shortCut: Ctrl-F
+    confirm: true
+    dangerous: true
+    scopes:
+      - all
+    description: |
+      Removes all finalizers from selected resource. Be careful when using it,
+      it may leave dangling resources or delete them
+    command: kubectl
+    background: true
+    args:
+      - patch
+      - --context
+      - $CONTEXT
+      - --namespace
+      - $NAMESPACE
+      - $RESOURCE_NAME
+      - $NAME
+      - -p
+      - '{"metadata":{"finalizers":null}}'
+      - --type
+      - merge
+
+  jqlogs:
+    # parse log to jq
+    shortCut: Ctrl-J
+    confirm: false
+    description: "Logs (jq)"
+    scopes:
+      - po
+    command: kubectl
+    background: false
+    args:
+      - jq
+      - $NAME
+      - $NAMESPACE
+      - $CONTEXT
+
+  # See https://k9scli.io/topics/plugins/
+  raw-logs-follow:
+    shortCut: Ctrl-L
+    description: logs -f
+    scopes:
+    - po
+    command: kubectl
+    background: false
+    args:
+    - logs
+    - -f
+    - $NAME
+    - -n
+    - $NAMESPACE
+    - --context
+    - $CONTEXT
+    - --kubeconfig
+    - $KUBECONFIG
+
+  log-less:
+    shortCut: Shift-L
+    description: "logs|less"
+    scopes:
+    - po
+    command: bash
+    background: false
+    args:
+    - -c
+    - '"$@" | less -N'
+    - dummy-arg
+    - kubectl
+    - logs
+    - $NAME
+    - -n
+    - $NAMESPACE
+    - --context
+    - $CONTEXT
+    - --kubeconfig
+    - $KUBECONFIG
+
+  log-less-container:
+    shortCut: Shift-L
+    description: "logs|less"
+    scopes:
+    - containers
+    command: bash
+    background: false
+    args:
+    - -c
+    - '"$@" | less -N'
+    - dummy-arg
+    - kubectl
+    - logs
+    - -c
+    - $NAME
+    - $POD
+    - -n
+    - $NAMESPACE
+    - --context
+    - $CONTEXT
+    - --kubeconfig
+    - $KUBECONFIG
